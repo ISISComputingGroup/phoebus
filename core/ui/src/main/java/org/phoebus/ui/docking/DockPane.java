@@ -140,8 +140,15 @@ public class DockPane extends TabPane
         active = new WeakReference<>(pane);
 
         final DockItem item = (DockItem) pane.getSelectionModel().getSelectedItem();
+        // When restoring from memento, item is null
+        if(item == null){
+            return;
+        }
         for (DockPaneListener listener : listeners)
             listener.activeDockItemChanged(item);
+
+        // This is needed to secure keyboard focus, e.g. when navigating between tabs.
+        item.getContent().requestFocus();
     }
 
     /** @return true if even single tab is shown */
