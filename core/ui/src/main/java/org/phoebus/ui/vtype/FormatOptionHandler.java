@@ -91,6 +91,11 @@ public class FormatOptionHandler
 
         if (value == null)
             return "<null>";
+
+        // Check roughly in order of likelyhood:
+        // We mostly expect numbers, then strings, then enum.
+        // For the arrays, handling any of them is expensive,
+        // so there the order of checking doesn't much matter.
         if (value instanceof VNumber)
         {
             final VNumber number = (VNumber) value;
@@ -103,6 +108,8 @@ public class FormatOptionHandler
             return ((VString)value).getValue();
         else if (value instanceof VEnum)
             return formatEnum((VEnum) value, option);
+        else if (value instanceof VBoolean)
+            return formatBoolean((VBoolean)value);
         else if (value instanceof VNumberArray)
         {
             final VNumberArray array = (VNumberArray) value;
@@ -148,11 +155,10 @@ public class FormatOptionHandler
         }
         else if (value instanceof VTable)
             return formatTable((VTable) value);
-        else if (value instanceof VBoolean)
-            return Boolean.toString(((VBoolean)value).getValue());
 
         return "<" + value.getClass().getName() + ">";
     }
+
 
     private static NumberFormat getDecimalFormat(final int precision)
     {
@@ -260,6 +266,15 @@ public class FormatOptionHandler
         if (option == FormatOption.DEFAULT  ||  option == FormatOption.STRING)
             return value.getValue();
         return Integer.toString(value.getIndex());
+    }
+
+    /**
+     * @param value {@link VBoolean}
+     * @return String representation for the VBoolean value
+     */
+    private static String formatBoolean(VBoolean value)
+    {
+        return value.getValue().toString();
     }
 
     /** Format table as text
